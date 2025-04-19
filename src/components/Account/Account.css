@@ -1,0 +1,49 @@
+.account {
+	margin-top: 80px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 40px;
+}
+
+.account .title {
+	text-align: center;
+}
+
+.login-form {
+	width: 500px;
+	display: flex;
+	gap: 8px;
+	flex-direction: column;
+}
+
+.login-form * {
+	border-radius: 5px;
+	text-decoration: none;
+	color: var(--primary);
+	font-family: Roboto;
+	font-size: 14px;
+}
+
+.login-form input {
+	height: 48px;
+	padding: 0 5px;
+	color: var(--subFont);
+	outline: none;
+	border: 1px solid black;
+}
+
+.login-form input::placeholder {
+	font-family: Roboto;
+	color: var(--subFont);
+	font-size: 18px;
+}
+
+.login-form button {
+	height: 48px;
+	color: white;
+	font-size: 18px;
+	background: var(--primary);
+	border: none;
+}
