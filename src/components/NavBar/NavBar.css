@@ -43,6 +43,7 @@
 }
 
 .nav-search button * {
+	font-size: 20px;
 	color: var(--primary);
 }
 
@@ -59,6 +60,18 @@
 	border-radius: 50px;
 	overflow: visible;
 }
+.nav-icons *:hover {
+	color: white;
+	background: var(--primary);
+	border: 1px solid var(--primary);
+}
+
+.is-active {
+	color: white !important;
+	background: var(--primary) !important;
+	border: 1px solid var(--primary) !important;
+}
+
 @media only screen and (max-width: 900px) {
 	.nav {
 		margin: 0 60px;
@@ -76,4 +89,10 @@
 		justify-content: center;
 		gap: 20px;
 	}
+}
+
+.nav-icons *,
+::after,
+::before {
+	box-sizing: unset !important;
 }

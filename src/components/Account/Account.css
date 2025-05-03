@@ -28,6 +28,7 @@
 
 .login-form input {
 	height: 48px;
+	/* width: 100%; */
 	padding: 0 5px;
 	color: var(--subFont);
 	outline: none;
@@ -46,4 +47,57 @@
 	font-size: 18px;
 	background: var(--primary);
 	border: none;
+}
+
+.login-form button:hover {
+	color: var(--primary);
+	background: white;
+	border: 2px solid var(--primary);
+}
+
+.register-form {
+	width: 500px;
+	display: flex;
+	gap: 8px;
+	flex-direction: column;
+}
+
+.register-form * {
+	border-radius: 5px;
+	text-decoration: none;
+	color: var(--primary);
+	font-family: Roboto;
+	font-size: 14px;
+}
+
+.register-form input {
+	height: 48px;
+	padding: 0 5px;
+	color: var(--subFont);
+	outline: none;
+	border: 1px solid black;
+}
+
+.register-form input::placeholder {
+	font-family: Roboto;
+	color: var(--subFont);
+	font-size: 18px;
+}
+
+.register-form button {
+	height: 48px;
+	color: white;
+	font-size: 18px;
+	background: var(--primary);
+	border: none;
+}
+
+.register-form button:hover {
+	color: var(--primary);
+	background: white;
+	border: 2px solid var(--primary);
+}
+
+.text-danger {
+	color: red;
 }

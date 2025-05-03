@@ -1,0 +1,106 @@
+.add-form {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.add-form * {
+	color: var(--subFont);
+}
+
+.add-form *:focus {
+	outline: none;
+}
+
+.add-form .top-section {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.add-form .input-group * {
+	width: 100%;
+}
+
+.form-check {
+	gap: 8px;
+
+	margin: 0;
+	align-items: center;
+	text-align: center;
+}
+
+.form-check * {
+	margin: 0;
+}
+
+.form-check input,
+.add-form .top-section * {
+	border: 1px solid var(--subFont);
+	border-radius: 5px;
+}
+
+.add-form .top-section * {
+	min-height: 40px;
+}
+
+.add-form textarea {
+	height: 80px;
+}
+
+.add-form .input-group {
+	outline: none;
+	border: 0;
+}
+
+.add-form .bottom-section {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	gap: 8px 24px;
+}
+
+.text-danger {
+	border: none !important;
+	min-height: 0 !important;
+	padding: 0 !important;
+	margin: 0 !important;
+	text-align: left;
+}
+
+.use-btn {
+}
+
+.action-btn {
+	width: 90px;
+	height: 40px;
+	color: white;
+	background: var(--primary);
+	border: none;
+	font-family: Inter !important;
+	font-size: 18px;
+	border-radius: 5px;
+}
+
+.action-btn:hover {
+	color: var(--primary);
+	background: none;
+	border: 2px solid var(--primary);
+}
+
+.close-btn {
+	width: 80px;
+	height: 40px;
+	color: white;
+	background: var(--subFont2);
+	border: none;
+	font-family: Inter !important;
+	font-size: 18px;
+	border-radius: 5px;
+}
+
+.close-btn:hover {
+	color: var(--subFont2);
+	background: none;
+	border: 2px solid var(--subFont2);
+}

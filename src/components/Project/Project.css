@@ -1,0 +1,107 @@
+.project {
+	margin-top: 80px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 40px;
+}
+
+.header {
+	display: flex;
+	flex-direction: row;
+	text-align: center;
+	gap: 16px;
+}
+
+.project .title {
+	text-align: center;
+}
+
+.add-btn {
+	width: 130px;
+	height: 40px;
+	color: white;
+	font-size: 18px;
+	border-radius: 5px;
+	background: var(--primary);
+	border: none;
+}
+
+.project-description {
+	display: flex;
+	gap: 16px;
+}
+
+.project .content {
+	width: 500px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+.project .heading {
+	font-family: Inter;
+	font-weight: 500;
+	font-size: 20px;
+}
+
+.project .properties,
+.project .tags {
+	font-family: Roboto;
+	color: var(--subFont);
+	display: flex;
+	text-align: center;
+	align-items: center;
+	list-style-type: none;
+	gap: 16px;
+	font-size: 14px;
+}
+
+.project-description .properties li {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	color: var(--subFont);
+	text-align: center;
+}
+
+.description {
+	font-family: Roboto;
+	font-size: 14px;
+}
+
+.project .tags * {
+	padding: 5px 10px;
+	border: 1px solid var(--primary);
+	color: var(--subFont);
+	border-radius: 15px;
+}
+
+.ud-btn {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px;
+}
+
+.ud-btn .add-btn {
+	width: 90px;
+	height: 40px;
+	color: var(--primary);
+	font-family: Inter !important;
+	font-size: 18px;
+	border-radius: 5px;
+	background: none;
+	border: 2px solid var(--primary);
+}
+
+.add-btn:hover {
+	background-color: unset;
+	border: 2px solid var(--primary);
+	color: var(--primary);
+}
+
+.ud-btn .add-btn:hover {
+	background-color: var(--primary);
+	color: white;
+	border: none;
+}
