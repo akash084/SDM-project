@@ -1,55 +1,84 @@
+import { toast } from "react-toastify";
+import axios from "axios";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import "./Account.css";
 
+interface Props {
+	onTokenReceived: (token: string) => void;
+}
+
 // Login schema
 const loginSchema = z.object({
-	login_email: z.string().min(3, "Email must be at least 3 characters."),
-	login_password: z.string().min(6, "Password must be at least 6 characters."),
+	email: z.string().min(3, "Email must be at least 3 characters."),
+	password: z.string().min(6, "Password must be at least 6 characters."),
 });
 
 // Register schema with password confirmation
 const registerSchema = z
 	.object({
-		register_email: z.string().min(3, "Email must be at least 3 characters."),
-		register_password: z
-			.string()
-			.min(6, "Password must be at least 6 characters."),
-		register_confirm_password: z
+		email: z.string().min(3, "Email must be at least 3 characters."),
+		password: z.string().min(6, "Password must be at least 6 characters."),
+		confirm_password: z
 			.string()
 			.min(6, "Confirm Password must be at least 6 characters."),
 	})
-	.refine((data) => data.register_password === data.register_confirm_password, {
+	.refine((data) => data.password === data.confirm_password, {
 		message: "Passwords do not match",
-		path: ["register_confirm_password"],
+		path: ["confirm_password"],
 	});
 
 type LoginFormData = z.infer<typeof loginSchema>;
 type RegisterFormData = z.infer<typeof registerSchema>;
 
-const Account = () => {
+const Account = ({ onTokenReceived }: Props) => {
 	const [registered, setRegistered] = useState(true);
 
 	const {
 		register: registerLogin,
 		handleSubmit: handleSubmitLogin,
 		formState: { errors: login_errors },
+		reset: resetLogin,
 	} = useForm<LoginFormData>({ resolver: zodResolver(loginSchema) });
 
 	const {
 		register: registerRegister,
 		handleSubmit: handleSubmitRegister,
 		formState: { errors: register_errors },
+		reset: resetRegister,
 	} = useForm<RegisterFormData>({ resolver: zodResolver(registerSchema) });
 
 	const onSubmitLogin = (data: LoginFormData) => {
-		console.log("Login Data:", data);
+		axios
+			.post("http://localhost:1337/api/native/login", data)
+			.then((res) => {
+				const token = res.data.data;
+				resetLogin();
+				toast.success("Logged in successfully!");
+				onTokenReceived(token); // <-- renamed here
+			})
+			.catch(() => {
+				toast.error("Email or password is incorrect.");
+			});
 	};
 
 	const onSubmitRegister = (data: RegisterFormData) => {
 		console.log("Register Data:", data);
+		axios
+			.post("http://localhost:1337/api/native/register", {
+				email: data.email,
+				password: data.password,
+			})
+			.then((res) => {
+				console.log(res);
+				resetRegister();
+				toast.success("Registered in succesfully!");
+			})
+			.catch(() => {
+				toast.error("Email already used is another account.");
+			});
 	};
 
 	return (
@@ -61,23 +90,23 @@ const Account = () => {
 					onSubmit={handleSubmitLogin(onSubmitLogin)}
 					className="login-form">
 					<input
-						{...registerLogin("login_email")}
+						{...registerLogin("email")}
 						type="text"
 						placeholder="Your email address"
 					/>
 
-					{login_errors.login_email && (
-						<p className="text-danger">{login_errors.login_email.message}</p>
+					{login_errors.email && (
+						<p className="text-danger">{login_errors.email.message}</p>
 					)}
 
 					<input
-						{...registerLogin("login_password")}
+						{...registerLogin("password")}
 						type="password"
 						placeholder="Your password"
 					/>
 
-					{login_errors.login_password && (
-						<p className="text-danger">{login_errors.login_password.message}</p>
+					{login_errors.password && (
+						<p className="text-danger">{login_errors.password.message}</p>
 					)}
 
 					<a href="#">Forgot password?</a>
@@ -97,38 +126,34 @@ const Account = () => {
 					onSubmit={handleSubmitRegister(onSubmitRegister)}
 					className="register-form">
 					<input
-						{...registerRegister("register_email")}
+						{...registerRegister("email")}
 						type="text"
 						placeholder="Your email address"
 					/>
 
-					{register_errors.register_email && (
-						<p className="text-danger">
-							{register_errors.register_email.message}
-						</p>
+					{register_errors.email && (
+						<p className="text-danger">{register_errors.email.message}</p>
 					)}
 
 					<input
-						{...registerRegister("register_password")}
+						{...registerRegister("password")}
 						type="password"
 						placeholder="Your password"
 					/>
 
-					{register_errors.register_password && (
-						<p className="text-danger">
-							{register_errors.register_password.message}
-						</p>
+					{register_errors.password && (
+						<p className="text-danger">{register_errors.password.message}</p>
 					)}
 
 					<input
-						{...registerRegister("register_confirm_password")}
+						{...registerRegister("confirm_password")}
 						type="password"
 						placeholder="Confirm password"
 					/>
 
-					{register_errors.register_confirm_password && (
+					{register_errors.confirm_password && (
 						<p className="text-danger">
-							{register_errors.register_confirm_password.message}
+							{register_errors.confirm_password.message}
 						</p>
 					)}
 

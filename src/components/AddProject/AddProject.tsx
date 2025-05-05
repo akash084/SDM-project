@@ -1,49 +1,127 @@
 import { useForm } from "react-hook-form";
+import { useRef } from "react";
 import "./AddProject.css";
+import { toast } from "react-toastify";
+import { useEffect } from "react";
+
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller } from "react-hook-form";
+// import { Controller } from "react-hook-form";
+import axios from "axios";
+// import Project from "../Project/Project";
 
-export const countries = ["Australia", "USA", "UK", "Canada"] as const;
-export const tags = [
+export const countries = [
+	"USA",
+	"Japan",
+	"Australia",
+	"England",
+	"South Korea",
+	"Nepal",
+	"India",
+] as const;
+export const categories = [
 	"Information Technology",
-	"Animation",
-	"Engineering",
 	"Art",
-	"Film",
-];
+	"Engineering",
+	"Movie / Video Editing",
+	"VFX / 3D Modeling",
+	"Animation",
+] as const;
+
+export const frameworkss = [
+	"Django",
+	"React",
+	"Laravel",
+	"ASP.Net",
+	"Flutter",
+] as const;
+
+export const programmingLanguages = [
+	"Python",
+	"Javascript",
+	"Typescript",
+	"C",
+	"C plus plus",
+	"C sharp",
+] as const;
 
 export const projectSchema = z.object({
-	project_title: z.string().min(3, "Title must be at least 3 characters."),
-	project_description: z
-		.string()
-		.min(6, "Description must be at least 3 characters."),
+	title: z.string().min(3, "Title must be at least 3 characters."),
+	description: z.string().min(6, "Description must be at least 6 characters."),
 	country: z.enum(countries, {
 		errorMap: () => ({ message: "Country is required." }),
 	}),
-	project_date: z
-		.string()
-		.min(1, "Project date is required.")
-		.refine((val) => !isNaN(Date.parse(val)), {
-			message: "Invalid date format.",
-		}),
-	member_slots: z.coerce.number().min(1, "At least one member is required."),
-	tags: z.array(z.string()).min(1, "Select at least one tag."),
+	categories: z.enum(categories, {
+		errorMap: () => ({ message: "categories is required." }),
+	}),
+	frameworks: z.enum(frameworkss, {
+		errorMap: () => ({ message: "frameworks is required." }),
+	}),
+	programmingLanguages: z.enum(programmingLanguages, {
+		errorMap: () => ({ message: "Programming Language is required." }),
+	}),
+
+	memberSlots: z.coerce.number().min(1, "At least one member is required."),
+
+	id: z.number().optional(),
+	documentId: z.string().optional(),
 });
 
 type ProjectFormData = z.infer<typeof projectSchema>;
 
-const AddProject = () => {
+interface Props {
+	authToken: string | null;
+	onProjectAdded: () => void;
+}
+
+const AddProject = ({ authToken, onProjectAdded }: Props) => {
 	const {
 		register: registerProject,
 		handleSubmit: handleSubmitProject,
 		formState: { errors: project_errors },
-		control,
+		reset,
+		// control,
 	} = useForm<ProjectFormData>({ resolver: zodResolver(projectSchema) });
 
+	const closeButtonRef = useRef<HTMLButtonElement>(null);
+
 	const onSubmitProject = (data: ProjectFormData) => {
-		console.log("Project Data:", data);
+		console.log(data, authToken);
+		axios
+			.post("http://localhost:1337/api/project/create", data, {
+				headers: {
+					Authorization: `Bearer ${authToken}`,
+				},
+			})
+			.then((res) => {
+				console.log(res);
+				onProjectAdded();
+				toast.success("Project added successfully!");
+				reset(); // reset form fields
+				closeButtonRef.current?.click(); // close the modal
+			})
+			.catch((error) => {
+				console.error(error);
+				toast.error("Sorry, the project was not added");
+			});
 	};
+
+	useEffect(() => {
+		const modalElement = document.getElementById("exampleModal1");
+
+		if (!modalElement) return;
+
+		const handleModalHidden = () => {
+			reset(); // reset form on close
+		};
+
+		modalElement.addEventListener("hidden.bs.modal", handleModalHidden);
+
+		// Cleanup
+		return () => {
+			modalElement.removeEventListener("hidden.bs.modal", handleModalHidden);
+		};
+	}, [reset]);
 	return (
 		<>
 			<div
@@ -55,7 +133,7 @@ const AddProject = () => {
 				<div className="modal-dialog">
 					<div className="modal-content">
 						<div className="modal-header">
-							<h1 className="modal-title fs-5" id="exampleModal_1Label">
+							<h1 className="modal-title fs-5" id="exampleModal1Label">
 								Add Project
 							</h1>
 							<button
@@ -68,30 +146,43 @@ const AddProject = () => {
 							<div className="add-form modal-body">
 								<div className="top-section">
 									<input
-										{...registerProject("project_title")}
+										{...registerProject("title")}
 										type="text"
 										placeholder="Project Title"
 									/>
-									{project_errors.project_title && (
+									{project_errors.title && (
 										<p className="text-danger">
-											{project_errors.project_title.message}
+											{project_errors.title.message}
 										</p>
 									)}
 
 									<textarea
-										{...registerProject("project_description")}
+										{...registerProject("description")}
 										placeholder="Project Description"></textarea>
-									{project_errors.project_description && (
+									{project_errors.description && (
 										<p className="text-danger">
-											{project_errors.project_description.message}
+											{project_errors.description.message}
+										</p>
+									)}
+
+									<input
+										type="number"
+										{...registerProject("memberSlots")}
+										placeholder="Member slots"></input>
+									{project_errors.memberSlots && (
+										<p className="text-danger">
+											{project_errors.memberSlots.message}
 										</p>
 									)}
 
 									<div className="input-group">
 										<select
 											id="inputGroupSelect01"
-											{...registerProject("country")}>
-											<option></option>
+											{...registerProject("country")}
+											defaultValue="">
+											<option value="" disabled hidden>
+												Select a Country
+											</option>
 											{countries.map((country) => (
 												<option key={country} value={country}>
 													{country}
@@ -104,67 +195,67 @@ const AddProject = () => {
 											{project_errors.country.message}
 										</p>
 									)}
-
-									<input
-										type="date"
-										{...registerProject("project_date")}
-										placeholder="Project date"></input>
-									{project_errors.project_date && (
+									<div className="input-group">
+										<select
+											id="inputGroupSelect01"
+											{...registerProject("categories")}
+											defaultValue="">
+											<option value="" disabled hidden>
+												Select a Category
+											</option>
+											{categories.map((categories) => (
+												<option key={categories} value={categories}>
+													{categories}
+												</option>
+											))}
+										</select>
+									</div>
+									{project_errors.categories && (
 										<p className="text-danger">
-											{project_errors.project_date.message}
+											{project_errors.categories.message}
 										</p>
 									)}
-									<input
-										type="number"
-										{...registerProject("member_slots")}
-										placeholder="Member slots"></input>
-									{project_errors.member_slots && (
+									<div className="input-group">
+										<select
+											id="inputGroupSelect01"
+											{...registerProject("programmingLanguages")}
+											defaultValue="">
+											<option value="" disabled hidden>
+												Select a Programming Language
+											</option>
+											{programmingLanguages.map((programmingLanguages) => (
+												<option
+													key={programmingLanguages}
+													value={programmingLanguages}>
+													{programmingLanguages}
+												</option>
+											))}
+										</select>
+									</div>
+									{project_errors.programmingLanguages && (
 										<p className="text-danger">
-											{project_errors.member_slots.message}
+											{project_errors.programmingLanguages.message}
 										</p>
 									)}
-								</div>
-								<div className="bottom-section">
-									<Controller
-										control={control}
-										name="tags"
-										render={({ field }) => (
-											<>
-												{tags.map((tag) => (
-													<div className="form-check d-flex" key={tag}>
-														<input
-															className="form-check-input"
-															type="checkbox"
-															value={tag}
-															id={tag}
-															checked={field.value?.includes(tag) || false}
-															onChange={(e) => {
-																const checked = e.target.checked;
-																const value = e.target.value;
-																if (checked) {
-																	field.onChange([
-																		...(field.value || []),
-																		value,
-																	]);
-																} else {
-																	field.onChange(
-																		(field.value || []).filter(
-																			(t) => t !== value
-																		)
-																	);
-																}
-															}}
-														/>
-														<label className="form-check-label" htmlFor={tag}>
-															{tag}
-														</label>
-													</div>
-												))}
-											</>
-										)}
-									/>
-									{project_errors.tags && (
-										<p className="text-danger">{project_errors.tags.message}</p>
+									<div className="input-group">
+										<select
+											id="inputGroupSelect01"
+											{...registerProject("frameworks")}
+											defaultValue="">
+											<option value="" disabled hidden>
+												Select a Framework
+											</option>
+											{frameworkss.map((frameworks) => (
+												<option key={frameworks} value={frameworks}>
+													{frameworks}
+												</option>
+											))}
+										</select>
+									</div>
+									{project_errors.frameworks && (
+										<p className="text-danger">
+											{project_errors.frameworks.message}
+										</p>
 									)}
 								</div>
 							</div>
@@ -173,7 +264,8 @@ const AddProject = () => {
 								<button
 									type="button"
 									className="close-btn"
-									data-bs-dismiss="modal">
+									data-bs-dismiss="modal"
+									ref={closeButtonRef}>
 									Close
 								</button>
 								<button type="submit" className="add-btn">

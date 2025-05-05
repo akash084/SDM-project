@@ -1,8 +1,18 @@
+import { useRef } from "react";
+
 import { useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
+import axios from "axios";
+import { toast } from "react-toastify";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { countries, tags, projectSchema } from "../AddProject/AddProject";
+import {
+	projectSchema,
+	countries,
+	categories,
+	programmingLanguages,
+	frameworkss,
+} from "../AddProject/AddProject";
 
 import "../AddProject/AddProject.css";
 
@@ -10,14 +20,21 @@ type UpdateFormData = z.infer<typeof projectSchema>;
 
 type UpdateProjectProps = {
 	project: UpdateFormData | null;
+	authToken: string | null;
+	onProjectUpdated: () => void;
 };
 
-const UpdateProject = ({ project }: UpdateProjectProps) => {
+const UpdateProject = ({
+	project,
+	authToken,
+	onProjectUpdated,
+}: UpdateProjectProps) => {
+	const closeButtonRef = useRef<HTMLButtonElement>(null);
+
 	const {
 		register: registerProject,
 		handleSubmit: handleSubmitProject,
 		formState: { errors: project_errors },
-		control,
 		reset,
 	} = useForm<UpdateFormData>({
 		resolver: zodResolver(projectSchema),
@@ -32,7 +49,46 @@ const UpdateProject = ({ project }: UpdateProjectProps) => {
 
 	const onSubmitProject = (data: UpdateFormData) => {
 		console.log("Updated Project Data:", data);
+
+		axios
+			.put(
+				`http://localhost:1337/api/project/update/${data.documentId}`,
+				data,
+				{
+					headers: {
+						Authorization: `Bearer ${authToken}`,
+					},
+				}
+			)
+			.then((res) => {
+				console.log(res);
+				onProjectUpdated();
+				closeButtonRef.current?.click(); // close the modal
+				toast.success("Project updated successfully!");
+				reset();
+			})
+			.catch((error) => {
+				console.error(error);
+				toast.error("Sorry, the project was not updated");
+			});
 	};
+
+	useEffect(() => {
+		const modalElement = document.getElementById("exampleModal2");
+
+		if (!modalElement) return;
+
+		const handleModalHidden = () => {
+			reset(); // reset form on close
+		};
+
+		modalElement.addEventListener("hidden.bs.modal", handleModalHidden);
+
+		// Cleanup
+		return () => {
+			modalElement.removeEventListener("hidden.bs.modal", handleModalHidden);
+		};
+	}, [reset]);
 
 	return (
 		<div
@@ -52,123 +108,125 @@ const UpdateProject = ({ project }: UpdateProjectProps) => {
 							className="btn-close"
 							data-bs-dismiss="modal"></button>
 					</div>
-
-					<form onSubmit={handleSubmitProject(onSubmitProject)}>
-						<div className="add-form modal-body">
-							<div className="top-section">
-								<input
-									{...registerProject("project_title")}
-									type="text"
-									placeholder="Project Title"
-								/>
-								{project_errors.project_title && (
-									<p className="text-danger">
-										{project_errors.project_title.message}
-									</p>
-								)}
-
-								<textarea
-									{...registerProject("project_description")}
-									placeholder="Project Description"></textarea>
-								{project_errors.project_description && (
-									<p className="text-danger">
-										{project_errors.project_description.message}
-									</p>
-								)}
-
-								<div className="input-group">
-									<select {...registerProject("country")}>
-										<option value="">Select Country</option>
-										{countries.map((country) => (
-											<option key={country} value={country}>
-												{country}
-											</option>
-										))}
-									</select>
-								</div>
-								{project_errors.country && (
-									<p className="text-danger">
-										{project_errors.country.message}
-									</p>
-								)}
-
-								<input
-									type="date"
-									{...registerProject("project_date")}
-									placeholder="Project date"
-								/>
-								{project_errors.project_date && (
-									<p className="text-danger">
-										{project_errors.project_date.message}
-									</p>
-								)}
-
-								<input
-									type="number"
-									{...registerProject("member_slots")}
-									placeholder="Member slots"
-								/>
-								{project_errors.member_slots && (
-									<p className="text-danger">
-										{project_errors.member_slots.message}
-									</p>
-								)}
-							</div>
-
-							<div className="bottom-section">
-								<Controller
-									control={control}
-									name="tags"
-									render={({ field }) => (
-										<>
-											{tags.map((tag) => (
-												<div className="form-check d-flex" key={tag}>
-													<input
-														className="form-check-input"
-														type="checkbox"
-														value={tag}
-														id={`update-${tag}`}
-														checked={field.value?.includes(tag) || false}
-														onChange={(e) => {
-															const checked = e.target.checked;
-															const value = e.target.value;
-															if (checked) {
-																field.onChange([...(field.value || []), value]);
-															} else {
-																field.onChange(
-																	(field.value || []).filter((t) => t !== value)
-																);
-															}
-														}}
-													/>
-													<label
-														className="form-check-label"
-														htmlFor={`update-${tag}`}>
-														{tag}
-													</label>
-												</div>
-											))}
-										</>
+					{project ? (
+						<form onSubmit={handleSubmitProject(onSubmitProject)}>
+							<div className="add-form modal-body">
+								<div className="top-section">
+									<input
+										{...registerProject("title")}
+										type="text"
+										placeholder="Project Title"
+									/>
+									{project_errors.title && (
+										<p className="text-danger">
+											{project_errors.title.message}
+										</p>
 									)}
-								/>
-								{project_errors.tags && (
-									<p className="text-danger">{project_errors.tags.message}</p>
-								)}
-							</div>
-						</div>
 
-						<div className="modal-footer">
-							<button
-								type="button"
-								className="close-btn"
-								data-bs-dismiss="modal">
-								Close
-							</button>
-							<button type="submit" className="action-btn">
-								Update
-							</button>
-						</div>
-					</form>
+									<textarea
+										{...registerProject("description")}
+										placeholder="Project Description"></textarea>
+									{project_errors.description && (
+										<p className="text-danger">
+											{project_errors.description.message}
+										</p>
+									)}
+
+									<input
+										type="number"
+										{...registerProject("memberSlots")}
+										placeholder="Member slots"></input>
+									{project_errors.memberSlots && (
+										<p className="text-danger">
+											{project_errors.memberSlots.message}
+										</p>
+									)}
+
+									<div className="input-group">
+										<select
+											id="inputGroupSelect01"
+											{...registerProject("country")}>
+											{countries.map((country) => (
+												<option key={country} value={country}>
+													{country}
+												</option>
+											))}
+										</select>
+									</div>
+									{project_errors.country && (
+										<p className="text-danger">
+											{project_errors.country.message}
+										</p>
+									)}
+									<div className="input-group">
+										<select
+											id="inputGroupSelect01"
+											{...registerProject("categories")}>
+											{categories.map((categories) => (
+												<option key={categories} value={categories}>
+													{categories}
+												</option>
+											))}
+										</select>
+									</div>
+									{project_errors.categories && (
+										<p className="text-danger">
+											{project_errors.categories.message}
+										</p>
+									)}
+									<div className="input-group">
+										<select
+											id="inputGroupSelect01"
+											{...registerProject("programmingLanguages")}>
+											{programmingLanguages.map((programmingLanguages) => (
+												<option
+													key={programmingLanguages}
+													value={programmingLanguages}>
+													{programmingLanguages}
+												</option>
+											))}
+										</select>
+									</div>
+									{project_errors.programmingLanguages && (
+										<p className="text-danger">
+											{project_errors.programmingLanguages.message}
+										</p>
+									)}
+									<div className="input-group">
+										<select
+											id="inputGroupSelect01"
+											{...registerProject("frameworks")}>
+											{frameworkss.map((frameworks) => (
+												<option key={frameworks} value={frameworks}>
+													{frameworks}
+												</option>
+											))}
+										</select>
+									</div>
+									{project_errors.frameworks && (
+										<p className="text-danger">
+											{project_errors.frameworks.message}
+										</p>
+									)}
+								</div>
+							</div>
+
+							<div className="modal-footer">
+								<button
+									type="button"
+									className="close-btn"
+									data-bs-dismiss="modal"
+									ref={closeButtonRef}>
+									Close
+								</button>
+								<button type="submit" className="action-btn">
+									Update
+								</button>
+							</div>
+						</form>
+					) : (
+						<div className="modal-body">No project selected for update.</div>
+					)}
 				</div>
 			</div>
 		</div>

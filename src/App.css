@@ -3,6 +3,8 @@
 	--primary: #682bd7;
 	--subFont: #4e4e4e;
 	--subFont2: #5c5c5c;
+
+	--toastify-color-progress-light: var(--primary);
 }
 
 @font-face {
