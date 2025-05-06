@@ -40,7 +40,10 @@ const Project = ({ authToken }: Props) => {
 				},
 			})
 			.then((res) => {
-				setProjects(res.data.data);
+				const fetchedProjects = Array.isArray(res.data.data)
+					? res.data.data
+					: [];
+				setProjects(fetchedProjects);
 			})
 			.catch(() => {
 				console.log("No Projects found");
@@ -55,9 +58,11 @@ const Project = ({ authToken }: Props) => {
 				},
 			})
 			.then((res) => {
-				setProjects(res.data.data);
-				console.log(projects);
-				console.log(res.data.data);
+				console.log("API Response:", res);
+				const fetchedProjects = Array.isArray(res.data?.data)
+					? res.data.data
+					: [];
+				setProjects(fetchedProjects);
 			})
 			.catch(() => {
 				console.log("No Projects found");
