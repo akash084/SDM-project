@@ -1,30 +1,53 @@
 import { FieldValues, useForm } from "react-hook-form";
-
+import axios from "axios";
 import "./NavBar.css";
 import { Icon } from "@iconify/react";
+import { ProjectType } from "../Project/Project";
 
 interface Props {
+	authToken: string | null;
 	navControl: {
 		activeSection: "account" | "project" | "message" | null;
 		setActiveSection: (
 			section: "account" | "project" | "message" | null
 		) => void;
 	};
+	setSearchResults: React.Dispatch<React.SetStateAction<ProjectType[] | null>>;
 }
 
-const NavBar = ({ navControl }: Props) => {
+const NavBar = ({ navControl, authToken, setSearchResults }: Props) => {
 	const { activeSection, setActiveSection } = navControl;
 
 	const handleClick = (section: "account" | "project" | "message") => {
 		if (activeSection === section) {
-			setActiveSection(null); // If clicked again, close it
+			setActiveSection(null);
+			setSearchResults(null); // If clicked again, close it
 		} else {
 			setActiveSection(section);
+			setSearchResults(null);
 		}
 	};
 
-	const onSubmit = (data: FieldValues) => console.log(data);
-	const { register, handleSubmit } = useForm();
+	const onSubmit = (data: FieldValues) => {
+		console.log(data);
+		axios
+			.post("http://localhost:1337/api/project/search", data, {
+				headers: {
+					Authorization: `Bearer ${authToken}`,
+				},
+			})
+			.then((res) => {
+				console.log(res.data.data);
+				setSearchResults(res.data.data);
+				navControl.setActiveSection("account");
+				reset();
+			})
+			.catch((error) => {
+				console.error(error);
+			});
+	};
+
+	const { register, handleSubmit, reset } = useForm();
 
 	return (
 		<>
@@ -38,7 +61,7 @@ const NavBar = ({ navControl }: Props) => {
 
 				<form className="nav-search" onSubmit={handleSubmit(onSubmit)}>
 					<input
-						{...register("searched")}
+						{...register("search")}
 						type="text"
 						placeholder="Search for Project / People"
 					/>

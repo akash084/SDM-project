@@ -8,6 +8,7 @@ import "./Account.css";
 
 interface Props {
 	onTokenReceived: (token: string) => void;
+	onLoggedIn: (loginStatus: boolean) => void;
 }
 
 // Login schema
@@ -33,7 +34,7 @@ const registerSchema = z
 type LoginFormData = z.infer<typeof loginSchema>;
 type RegisterFormData = z.infer<typeof registerSchema>;
 
-const Account = ({ onTokenReceived }: Props) => {
+const Account = ({ onTokenReceived, onLoggedIn }: Props) => {
 	const [registered, setRegistered] = useState(true);
 
 	const {
@@ -55,9 +56,11 @@ const Account = ({ onTokenReceived }: Props) => {
 			.post("http://localhost:1337/api/native/login", data)
 			.then((res) => {
 				const token = res.data.data;
+				// console.log(token);
 				resetLogin();
 				toast.success("Logged in successfully!");
 				onTokenReceived(token); // <-- renamed here
+				onLoggedIn(true);
 			})
 			.catch(() => {
 				toast.error("Email or password is incorrect.");

@@ -16,7 +16,7 @@ interface Props {
 	authToken: string | null;
 }
 
-export type Project = {
+export type ProjectType = {
 	id: number;
 	documentId: string;
 	title: string;
@@ -31,7 +31,7 @@ export type Project = {
 };
 
 const Project = ({ authToken }: Props) => {
-	const [projects, setProjects] = useState<Project[]>([]);
+	const [projects, setProjects] = useState<ProjectType[]>([]);
 	const fetchProjects = () => {
 		axios
 			.get("http://localhost:1337/api/projects", {
@@ -69,8 +69,10 @@ const Project = ({ authToken }: Props) => {
 			});
 	}, [authToken]);
 
-	const [projectToEdit, setProjectToEdit] = useState<Project | null>(null);
-	const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+	const [projectToEdit, setProjectToEdit] = useState<ProjectType | null>(null);
+	const [projectToDelete, setProjectToDelete] = useState<ProjectType | null>(
+		null
+	);
 	return (
 		<>
 			<div className="project">
